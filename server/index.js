@@ -1,16 +1,8 @@
-const express = require('express');
-const app = express();
+const app = require('./src/app');
 
-app.use(express.json());
+const PORT = 5001
 
-
-
-app.get('/', (req, res )=> {
-    res.send('Codeforce');
-})
-
-
-app.listen(5001,  () => {
+app.listen(PORT,  () => {
     console.log('Server is running ');
 })
 
