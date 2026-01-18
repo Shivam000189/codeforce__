@@ -1,5 +1,8 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const authMiddleware = require('../middlewares/authMiddleware');
+
 
 
 exports.register = async (req, res) => {
@@ -28,27 +31,41 @@ exports.register = async (req, res) => {
 };
 
 
+
 exports.login = async (req, res) => {
-    const {email, password} = req.body;
+  try {
+    const { email, password } = req.body;
 
-
-    if(!email || !password) {
-        return res.status(400).json({msg:"Invalid field"});
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Invalid field" });
     }
-    const user = await User.findOne({email});
 
-    if(!user) return res.status(401).json({msg:"Invald email"});
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ msg: "Invalid email" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if(!isMatch){
-        return res.status(401).json({msg:"Invalid email or password"})
+    if (!isMatch) {
+      return res.status(401).json({ msg: "Invalid email or password" });
     }
 
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
     return res.json({
-        message:"User login Succesfully",
-        email
+      message: "User login Successfully",
+      token
     });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error" });
+  }
 };
+
+
+
+
 
 
 
