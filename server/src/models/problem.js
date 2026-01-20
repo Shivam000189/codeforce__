@@ -1,17 +1,27 @@
 const mongoose = require('mongoose');
 
 const problemSchema = new mongoose.Schema({
-    title:{type:String, require:true},
-    statement:{type:String, require:true},
-    difficulty:{type:String, enum:['easy', 'meduim', 'hard'], require:true},
+    title:{type:String, required:true, trim:true},
+    statement:{type:String, required:true},
+    difficulty:{type:String, enum:['easy', 'medium', 'hard'], required:true},
     testCases:[
         {
             input:String,
             output:String,
-            isSample:Boolean
+            isSample:{
+                type:Boolean,
+                default:false
+            }
         }
-    ]
-});
+    ],
+    createdBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required:true
+    }
 
+},
+    {timestamps:true}    
+);
 
 module.exports = mongoose.model('Problem', problemSchema);
