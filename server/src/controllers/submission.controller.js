@@ -1,9 +1,14 @@
 const Submission = require('../models/submission');
+const mongoose = require('mongoose');
 
 exports.submitCode = async (req, res) => {
   try {
     const { sourceCode, language } = req.body;
     const { problemId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(problemId)) {
+        return res.status(400).json({ message: 'Invalid problem ID format' });
+      }
 
     const submission = await Submission.create({
       user: req.user.userId,
@@ -12,6 +17,8 @@ exports.submitCode = async (req, res) => {
       language,
       status: 'pending'
     });
+
+    
 
     res.status(201).json({
       message: 'Submission received',

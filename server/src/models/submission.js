@@ -19,7 +19,7 @@ const submissionSchema = new mongoose.Schema({
     language:{
         type:String, enum:['C', 'C++' , 'Python'], required:true
     },
-    statu:{
+    status:{
         type:String,
         enum: ['pending', 'correct', 'incorrect'],
         default: 'pending'
