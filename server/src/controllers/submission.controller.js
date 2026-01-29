@@ -1,6 +1,6 @@
 const Submission = require('../models/submission');
 const mongoose = require('mongoose');
-
+const { judgeSubmission } = require('../services/judge.service')
 exports.submitCode = async (req, res) => {
   try {
     const { sourceCode, language } = req.body;
@@ -18,6 +18,8 @@ exports.submitCode = async (req, res) => {
       status: 'pending'
     });
 
+    judgeSubmission(submission._id);
+
     
 
     res.status(201).json({
@@ -25,6 +27,8 @@ exports.submitCode = async (req, res) => {
       submissionId: submission._id,
       status: submission.status
     });
+
+    
   } catch (error) {
     res.status(500).json({
       message: 'Submission failed',
