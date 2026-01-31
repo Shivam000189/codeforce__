@@ -1,35 +1,26 @@
-const mongoose = require('mongoose');
-
+// services/judge.service.js
 const Submission = require("../models/submission");
 
+async function judgeSubmission(submissionId) {
+  const submission = await Submission.findById(submissionId);
 
-async function  judgeSubmission(submissionId) {
-    try{
-        const submission = await Submission.findById(submissionId);
+  if (!submission) {
+    throw new Error("Submission not found");
+  }
 
+  const codeLength = submission.sourceCode.length;
 
-        if(!submission){
-            throw new Error('Submission not Found');
-        }
+  if (codeLength > 20) {
+    submission.status = "accepted";
+    submission.verdict = "Correct Answer";
+  } else {
+    submission.status = "wrong_answer";
+    submission.verdict = "Wrong Answer";
+  }
 
-        let finalCall = 'incorrect';
+  await submission.save();
 
-        if(submission.sourceCode.length > 20){
-            finalCall = 'correct';
-        }
-        
-        submission.status = finalCall;
-
-        await submission.save();
-
-
-        console.log(`Submission ${submissionId} judge as ${finalCall}`);
-    } catch(error){
-        console.log('Judge error:', error.message);
-    }
+  return submission;
 }
 
-
 module.exports = { judgeSubmission };
-
-

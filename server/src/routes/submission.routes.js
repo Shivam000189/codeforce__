@@ -9,4 +9,12 @@ router.post(
   submissionController.submitCode
 );
 
+
+router.get(
+  '/:id',
+  authMiddleware,
+  submissionController.getSubmissionStatus
+);
+
+
 module.exports = router;
