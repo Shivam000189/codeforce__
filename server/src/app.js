@@ -22,7 +22,7 @@ app.use('/api/judge', judgeRoute);
 
 
 
-app.get('/', (req, res )=> {
+app.get('/', (req, res)=> {
     res.send('Codeforce');
 })
 
