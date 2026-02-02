@@ -27,3 +27,25 @@ exports.create = async (req, res) => {
     });
   }
 };
+
+
+
+exports.getProblemById = async (req, res) => {
+  const problem = await Problem.findById(req.params.id);
+  
+  if(!problem) {
+    return res.status(400).json({msg:"Problem not found"});
+  }
+
+  const sampleTestCases = problem.testCases.filter(
+    tc => tc.isSample === true
+  );
+
+  res.json({
+      _id: problem._id,
+      title: problem.title,
+      statement: problem.statement,
+      difficulty: problem.difficulty,
+      testCases: sampleTestCases
+    });
+}

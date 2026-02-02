@@ -1,27 +1,30 @@
-// models/submission.js
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const submissionSchema = new mongoose.Schema({
-  problem: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Problem",
-    required: true
-  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true
   },
-  language: String,
-  sourceCode: String,
-
+  problem: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Problem',
+    required: true
+  },
+  sourceCode: {
+    type: String,
+    required: true
+  },
+  language: {
+    type: String,
+    enum: ['c', 'cpp', 'python'],
+    required: true
+  },
   status: {
     type: String,
-    enum: ["pending", "running", "accepted", "wrong_answer", "error"],
-    default: "pending"
+    enum: ['pending', 'correct', 'incorrect'],
+    default: 'pending'
   },
-
-  verdict: String
+  output: String,
+  error: String,
 }, { timestamps: true });
-
-module.exports = mongoose.model("Submission", submissionSchema);
