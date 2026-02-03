@@ -1,26 +1,35 @@
-// services/judge.service.js
-const Submission = require("../models/submission");
+const Submission = require('../models/submission');
+const Problem = require('../models/problem');
 
 async function judgeSubmission(submissionId) {
-  const submission = await Submission.findById(submissionId);
+  const submission = await Submission.findById(submissionId).populate('problem');
 
-  if (!submission) {
-    throw new Error("Submission not found");
-  }
+  if (!submission) throw new Error('Submission not found');
 
-  const codeLength = submission.sourceCode.length;
 
-  if (codeLength > 20) {
-    submission.status = "accepted";
-    submission.verdict = "Correct Answer";
-  } else {
-    submission.status = "wrong_answer";
-    submission.verdict = "Wrong Answer";
-  }
+  const testCases = submission.problem.testCases;
 
+
+  submission.status = 'pending';
   await submission.save();
 
-  return submission;
+  
+    for(const testCase of testCases){
+        const fakeOutput = submission.sourceCode.length > 20 ? testCase.output : 'Wrong_output';
+
+
+        if(fakeOutput.trim() !== testCase.output.trim()){
+            submission.status = 'incorrect';
+            await submission.save();
+            return 'incorrect';
+
+        }
+    }
+
+
+    submission.status = 'correct';
+    await submission.save();
+    return 'correct';
 }
 
 module.exports = { judgeSubmission };

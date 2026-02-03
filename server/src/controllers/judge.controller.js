@@ -3,7 +3,7 @@ const { judgeSubmission } = require("../services/judge.service");
 
 exports.runJudge = async (req, res) => {
     try{
-        const submissionId = req.params;
+        const submissionId = req.params.submissionId;
 
         const result = await judgeSubmission(submissionId);
 
