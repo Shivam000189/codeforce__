@@ -1,22 +1,20 @@
 const Submission = require('../models/submission');
-const mongoose = require('mongoose');
 const { judgeSubmission } = require('../services/judge.service')
-// controllers/submission.controller.js
-// const Submission = require("../models/submission");
-// const { judgeSubmission } = require("../services/judge.service");
+
+
 
 exports.submitCode = async (req, res) => {
   try {
     const submission = await Submission.create({
       problem: req.params.problemId,
-      user: req.user.id,
+      user: req.user.userId,
       language: req.body.language,
       sourceCode: req.body.sourceCode
     });
 
     // async judge (can be queue later)
     judgeSubmission(submission._id)
-      .catch(err => console.error("Judge error:", err.message));
+      .catch(err => console.error('Judge error:', err.message));
 
     res.status(201).json({
       message: "Submission received",
@@ -34,17 +32,23 @@ exports.submitCode = async (req, res) => {
 
 
 exports.getSubmissionStatus = async (req, res) => {
-  const { id } = req.params;
+  try{
+    const { id } = req.params;
+    const submission = await Submission.findById(id)
+      .select('status problem user');
 
-  const submission = await Submission.findById(id)
-    .select('status problem user');
+      if (!submission) {
+        return res.status(404).json({ message: 'Submission not found' });
+      }
 
-  if (!submission) {
-    return res.status(404).json({ message: 'Submission not found' });
+      res.json({
+        submissionId: submission._id,
+        status: submission.status
+      });
+  }catch(error){
+    res.status(400).json({
+      msg:'Invalid submission id',
+      error: error.message
+    });
   }
-
-  res.json({
-    submissionId: submission._id,
-    status: submission.status
-  });
 };
