@@ -21,6 +21,7 @@ exports.create = async (req, res) => {
       problemId: problem._id
     });
   } catch (error) {
+    console.error('Create problem error:', error);
     res.status(500).json({
       message: 'Failed to create problem',
       error: error.message
@@ -28,24 +29,33 @@ exports.create = async (req, res) => {
   }
 };
 
-
-
 exports.getProblemById = async (req, res) => {
-  const problem = await Problem.findById(req.params.id);
-  
-  if(!problem) {
-    return res.status(400).json({msg:"Problem not found"});
-  }
+  try {
+    const problem = await Problem.findById(req.params.id);
 
-  const sampleTestCases = problem.testCases.filter(
-    tc => tc.isSample === true
-  );
+    if (!problem) {
+      return res.status(404).json({ message: 'Problem not found' });
+    }
 
-  res.json({
+    const sampleTestCases = problem.testCases.filter(
+      tc => tc.isSample === true
+    );
+
+    res.json({
       _id: problem._id,
       title: problem.title,
       statement: problem.statement,
       difficulty: problem.difficulty,
       testCases: sampleTestCases
     });
-}
+  } catch (error) {
+    console.error('Get problem error:', error);
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid problem ID format' });
+    }
+    res.status(500).json({
+      message: 'Server error fetching problem',
+      error: error.message
+    });
+  }
+};

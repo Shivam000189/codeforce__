@@ -27,7 +27,22 @@ const submissionSchema = new mongoose.Schema({
   },
   output: String,
   error: String,
+  results: [
+    {
+      input: String,
+      expectedOutput: String,
+      actualOutput: String,
+      passed: Boolean,
+      error: String,
+      executionTime: Number
+    }
+  ]
 }, { timestamps: true });
 
+
+submissionSchema.index({ user: 1 });
+submissionSchema.index({ problem: 1 });
+submissionSchema.index({ status: 1 });
+submissionSchema.index({ createdAt: -1 }); // newest submissions first
 
 module.exports = mongoose.model('Submission', submissionSchema);
