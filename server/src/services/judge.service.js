@@ -103,6 +103,8 @@ async function judgeSubmission(submissionId) {
       await runWithInput(fileInfo.compileCmd.cmd, fileInfo.compileCmd.args, '', TIMEOUT_MS);
     }
 
+    const testCaseTimeout = submission.problem.timeLimit || TIMEOUT_MS;
+
     // Run each test case
     const results = [];
     for (const tc of testCases) {
@@ -112,7 +114,7 @@ async function judgeSubmission(submissionId) {
       let errorMsg = null;
 
       try {
-        actualOutput = await runWithInput(fileInfo.runCmd, fileInfo.runArgs, tc.input, TIMEOUT_MS);
+        actualOutput = await runWithInput(fileInfo.runCmd, fileInfo.runArgs, tc.input, testCaseTimeout);
         // Normalize line endings and trim trailing whitespace
         const normalizedActual = actualOutput.replace(/\r\n/g, '\n').trimEnd();
         const normalizedExpected = tc.output.replace(/\r\n/g, '\n').trimEnd();

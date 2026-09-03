@@ -3,7 +3,8 @@ const { z } = require('zod');
 exports.registerSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email format'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['user', 'moderator', 'admin']).optional()
 });
 
 exports.loginSchema = z.object({
@@ -15,6 +16,11 @@ exports.createProblemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   statement: z.string().min(1, 'Statement is required'),
   difficulty: z.enum(['easy', 'medium', 'hard']),
+  tags: z.array(z.string().min(1)).optional(),
+  timeLimit: z.number().int().min(100).max(15000).optional(),
+  memoryLimit: z.number().int().min(16).max(2048).optional(),
+  constraints: z.string().optional(),
+  editorial: z.string().optional(),
   testCases: z.array(z.object({
     input: z.string(),
     output: z.string(),

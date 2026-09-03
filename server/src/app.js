@@ -10,26 +10,14 @@ app.use(express.json());
 
 const helmet = require('helmet');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
+const { apiLimiter, authLimiter } = require('./middlewares/rateLimiter');
 
 // Security middleware
 app.use(helmet());
 app.use(cors());
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: { message: 'Too many requests, please try again later' }
-});
-app.use('/api/', limiter);
-
-// Stricter rate limit for auth routes
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { message: 'Too many login attempts, please try again later' }
-});
+app.use('/api/', apiLimiter);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 

@@ -1,9 +1,10 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Basic validation
     if (!name || !email || !password) {
@@ -15,24 +16,24 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    
-
     const user = await User.create({
       name,
       email,
-      password
+      password,
+      ...(role && { role })
     });
 
     const token = jwt.sign(
-        { userId: user._id },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
     );
 
-      return res.status(201).json({
-        message: 'User registered successfully',
-        token,
-        userId: user._id
+    return res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      userId: user._id,
+      role: user.role
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -59,14 +60,16 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
     return res.json({
       message: 'User login successful',
-      token
+      token,
+      userId: user._id,
+      role: user.role
     });
   } catch (err) {
     console.error('Login error:', err);
