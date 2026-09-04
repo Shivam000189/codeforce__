@@ -74,7 +74,7 @@ const MainApp: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col selection:bg-blue-100 selection:text-blue-900">
       {/* Top Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -111,10 +111,10 @@ const MainApp: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-gray-200 bg-white py-6 text-center text-xs text-gray-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Codeforces OJ &bull; High-Performance Competitive Programming Platform</span>
-          <span className="text-slate-600">Built with React, Express, MongoDB, & Docker/GCC</span>
+          <span className="font-medium text-gray-700">Codeforces OJ &bull; High-Performance Competitive Programming Platform</span>
+          <span className="text-gray-400">Built with React, Express, MongoDB, & Docker/GCC</span>
         </div>
       </footer>
 

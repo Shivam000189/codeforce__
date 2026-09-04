@@ -19,7 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     if (!user) return null;
     if (isAdmin) {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
           <ShieldAlert className="w-3 h-3" />
           Admin
         </span>
@@ -27,14 +27,14 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
     if (isModerator) {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
           <ShieldCheck className="w-3 h-3" />
           Moderator
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
         <UserIcon className="w-3 h-3" />
         User
       </span>
@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-8">
@@ -50,19 +50,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => onNavigate('problemset')}
             className="flex items-center gap-3 group text-left cursor-pointer"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-xs group-hover:opacity-95 transition-all">
               <Terminal className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                <span className="font-black text-lg tracking-tight text-gray-900">
                   CODEFORCES
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 tracking-wide uppercase">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 tracking-wide uppercase">
                   OJ
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium">Online Judge & Execution Platform</p>
+              <p className="text-[11px] text-gray-500 font-medium">Online Judge & Execution Platform</p>
             </div>
           </button>
 
@@ -72,11 +72,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => onNavigate('problemset')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
                 activeTab === 'problemset' || activeTab === 'detail'
-                  ? 'bg-slate-800/80 text-white shadow-sm border border-slate-700/60'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  ? 'bg-gray-100 text-gray-900 shadow-xs border border-gray-200 font-semibold'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              <BookOpen className="w-4 h-4 text-indigo-400" />
+              <BookOpen className="w-4 h-4 text-blue-600" />
               Problemset
             </button>
 
@@ -85,13 +85,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => onNavigate('create')}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
                   activeTab === 'create'
-                    ? 'bg-slate-800/80 text-white shadow-sm border border-slate-700/60'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    ? 'bg-gray-100 text-gray-900 shadow-xs border border-gray-200 font-semibold'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                <PlusCircle className="w-4 h-4 text-purple-400" />
+                <PlusCircle className="w-4 h-4 text-purple-600" />
                 Create Problem
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-bold">
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold">
                   RBAC
                 </span>
               </button>
@@ -103,12 +103,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-3">
           {isAuthenticated && user ? (
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2.5 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl">
-                <div className="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center font-bold text-xs text-indigo-400 border border-slate-700">
+              <div className="hidden sm:flex items-center gap-2.5 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-xl">
+                <div className="w-7 h-7 rounded-lg bg-gray-200 flex items-center justify-center font-bold text-xs text-gray-800 border border-gray-300">
                   {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-slate-200 max-w-[140px] truncate">
+                  <span className="text-xs font-semibold text-gray-900 max-w-[140px] truncate">
                     {user.name || user.email}
                   </span>
                   <div className="mt-0.5">{getRoleBadge()}</div>
@@ -117,25 +117,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={logout}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all cursor-pointer"
                 title="Sign out"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline font-medium">Logout</span>
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onOpenAuth('login')}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 border border-slate-800 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-50 border border-gray-300 shadow-xs transition-all cursor-pointer"
               >
-                <LogIn className="w-4 h-4 text-indigo-400" />
+                <LogIn className="w-4 h-4 text-blue-600" />
                 Sign In
               </button>
               <button
                 onClick={() => onOpenAuth('register')}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/25 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs transition-all cursor-pointer"
               >
                 Register
               </button>

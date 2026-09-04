@@ -34,30 +34,30 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   }, [toast.id, onDismiss]);
 
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />,
-    error: <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />,
-    warning: <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />,
-    info: <AlertCircle className="w-5 h-5 text-sky-400 shrink-0" />
+    success: <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />,
+    error: <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />,
+    warning: <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />,
+    info: <AlertCircle className="w-5 h-5 text-blue-600 shrink-0" />
   };
 
   const bgStyles = {
-    success: 'bg-slate-900/95 border-emerald-500/30 text-emerald-200 shadow-emerald-950/40',
-    error: 'bg-slate-900/95 border-rose-500/30 text-rose-200 shadow-rose-950/40',
-    warning: 'bg-slate-900/95 border-amber-500/30 text-amber-200 shadow-amber-950/40',
-    info: 'bg-slate-900/95 border-sky-500/30 text-sky-200 shadow-sky-950/40'
+    success: 'bg-white border-emerald-200 text-gray-900 shadow-lg',
+    error: 'bg-white border-rose-200 text-gray-900 shadow-lg',
+    warning: 'bg-white border-amber-200 text-gray-900 shadow-lg',
+    info: 'bg-white border-blue-200 text-gray-900 shadow-lg'
   };
 
   return (
     <div
-      className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border backdrop-blur-md shadow-xl transition-all duration-300 transform translate-y-0 ${bgStyles[toast.type]}`}
+      className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-lg transition-all duration-300 transform translate-y-0 ${bgStyles[toast.type]}`}
     >
       {icons[toast.type]}
-      <div className="flex-1 text-sm font-medium leading-relaxed break-words text-slate-100">
+      <div className="flex-1 text-sm font-medium leading-relaxed break-words text-gray-900">
         {toast.message}
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="text-slate-400 hover:text-slate-200 p-0.5 rounded-lg transition-colors cursor-pointer"
+        className="text-gray-400 hover:text-gray-700 p-0.5 rounded-lg transition-colors cursor-pointer"
         aria-label="Dismiss notification"
       >
         <X className="w-4 h-4" />
