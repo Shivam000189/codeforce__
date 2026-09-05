@@ -1,6 +1,6 @@
-# Codeforces OJ API
+# Codeforces Online Judge (OJ)
 
-An Online Judge backend inspired by Codeforces, built with Node.js, Express, and MongoDB. Users can create coding problems, submit solutions in C/C++/Python, and get real-time judging results.
+> A full-featured competitive programming online judge and REST API built with Node.js, Express, and MongoDB — featuring secure multi-language code execution (C, C++, Python), time/memory limits, process tree isolation, role-based access control, and real-time verdict evaluation.
 
 ## Tech Stack
 
@@ -38,7 +38,7 @@ An Online Judge backend inspired by Codeforces, built with Node.js, Express, and
 
 ```bash
 git clone <your-repo-url>
-cd codeforce___
+cd codeforce__
 
 # Install dependencies for both server and client
 npm run install:all
@@ -106,7 +106,7 @@ Or run individually inside each directory (`cd server && npm run dev` / `cd clie
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
 | POST | `/api/problem/create-problem` | Auth (Admin / Moderator) | Create a new problem |
-| GET | `/api/problem` | Auth | List problems with pagination, search, and filtering |
+| GET | `/api/problem` or `/api/problem/list` | Auth | List paginated problems (public-safe fields: id, title, difficulty, tags, limits) |
 | GET | `/api/problem/:id` | Auth | Get problem details (sample test cases only) |
 
 #### Query parameters for `GET /api/problem`
@@ -114,9 +114,9 @@ Or run individually inside each directory (`cd server && npm run dev` / `cd clie
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
 | `page` | Integer | `1` | Page number |
-| `limit` | Integer | `10` | Number of items per page (max 100) |
-| `search` or `q` | String | - | Case-insensitive title keyword search |
+| `limit` | Integer | `20` | Number of items per page (max 100) |
 | `difficulty` | String | - | Filter by difficulty (`easy`, `medium`, `hard`) |
+| `search` or `q` | String | - | Case-insensitive title keyword search |
 | `tags` or `tag` | String | - | Filter by tag(s), comma-separated (e.g. `array,math`) |
 | `sortBy` | String | `createdAt` | Sort field (`createdAt`, `title`, `difficulty`, `timeLimit`, `memoryLimit`) |
 | `sortOrder` | String | `desc` | Sort order (`asc` or `desc`) |
