@@ -23,25 +23,33 @@ const authLimiter = rateLimit({
 });
 
 /**
- * Rate limiter for code submissions to prevent DoS from heavy compilation/execution
+ * Rate limiter for code submissions to prevent DoS from heavy compilation/execution.
+ * Keyed by authenticated user's ID from JWT, falling back to IP.
  */
 const submissionLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // Limit each IP to 10 submissions per minute
-  standardHeaders: true,
+  windowMs: 60 * 1000, // 1 minute window
+  max: 10, // Limit to 10 submissions per user per minute
+  standardHeaders: true, // Sends standard RateLimit and Retry-After headers
   legacyHeaders: false,
-  message: { message: 'Too many submissions, please try again later' }
+  keyGenerator: (req) => {
+    return req.user?.userId ? `user_${req.user.userId}` : (req.ip || 'unknown_ip');
+  },
+  message: { message: 'Too many submissions, please wait before submitting again' }
 });
 
 /**
- * Rate limiter for manual judge re-run triggers
+ * Rate limiter for manual judge re-run triggers.
+ * Keyed by authenticated user's ID from JWT, falling back to IP.
  */
 const judgeLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // Limit each IP to 10 judge requests per minute
-  standardHeaders: true,
+  windowMs: 60 * 1000, // 1 minute window
+  max: 10, // Limit to 10 judge requests per user per minute
+  standardHeaders: true, // Sends standard RateLimit and Retry-After headers
   legacyHeaders: false,
-  message: { message: 'Too many judge requests, please try again later' }
+  keyGenerator: (req) => {
+    return req.user?.userId ? `user_${req.user.userId}` : (req.ip || 'unknown_ip');
+  },
+  message: { message: 'Too many judge requests, please wait before submitting again' }
 });
 
 module.exports = {
@@ -50,3 +58,4 @@ module.exports = {
   submissionLimiter,
   judgeLimiter
 };
+

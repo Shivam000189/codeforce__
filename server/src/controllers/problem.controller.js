@@ -83,7 +83,7 @@ exports.getProblemById = async (req, res) => {
 exports.getAllProblems = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
     const skip = (page - 1) * limit;
 
     const filter = {};
@@ -95,7 +95,7 @@ exports.getAllProblems = async (req, res) => {
       filter.title = { $regex: escapedSearch, $options: 'i' };
     }
 
-    // Difficulty filter
+    // Difficulty filter (easy | medium | hard)
     if (req.query.difficulty && ['easy', 'medium', 'hard'].includes(req.query.difficulty.toLowerCase())) {
       filter.difficulty = req.query.difficulty.toLowerCase();
     }
@@ -119,7 +119,7 @@ exports.getAllProblems = async (req, res) => {
     const [totalProblems, problems] = await Promise.all([
       Problem.countDocuments(filter),
       Problem.find(filter)
-        .select('-testCases')
+        .select('_id title difficulty tags timeLimit memoryLimit createdAt')
         .sort({ [sortBy]: sortOrder })
         .skip(skip)
         .limit(limit)

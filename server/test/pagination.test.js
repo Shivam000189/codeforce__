@@ -142,11 +142,11 @@ test('getAllProblems falls back to safe defaults on empty query', async () => {
     assert.equal(responseData.totalProblems, 0);
     assert.equal(responseData.totalPages, 1);
     assert.equal(responseData.currentPage, 1);
-    assert.equal(responseData.limit, 10);
+    assert.equal(responseData.limit, 20);
     assert.deepEqual(capturedFilter, {});
     assert.deepEqual(capturedSort, { createdAt: -1 });
     assert.equal(capturedSkip, 0);
-    assert.equal(capturedLimit, 10);
+    assert.equal(capturedLimit, 20);
   } finally {
     Problem.countDocuments = originalCount;
     Problem.find = originalFind;

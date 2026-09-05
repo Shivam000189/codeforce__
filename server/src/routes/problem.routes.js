@@ -14,6 +14,7 @@ router.post(
   problemController.create
 );
 router.get('/', authMiddleware, problemController.getAllProblems);
+router.get('/list', authMiddleware, problemController.getAllProblems);
 router.get('/:id', authMiddleware, problemController.getProblemById);
 
 module.exports = router;
