@@ -3,8 +3,11 @@ const { z } = require('zod');
 exports.registerSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email format'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['user', 'moderator', 'admin']).optional()
+  password: z.string().min(6, 'Password must be at least 6 characters')
+});
+
+exports.updateUserRoleSchema = z.object({
+  role: z.enum(['user', 'moderator', 'admin'])
 });
 
 exports.loginSchema = z.object({

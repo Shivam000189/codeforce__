@@ -32,7 +32,7 @@
 
 - Node.js >= 20
 - MongoDB running locally or a MongoDB Atlas URI
-- GCC, G++, and Python3 installed for the judge
+- Docker Engine or Docker Desktop for containerized sandboxing
 
 ### Quick Install (Both Backend & Frontend)
 
@@ -40,7 +40,10 @@
 git clone <your-repo-url>
 cd codeforce__
 
-# Install dependencies for both server and client
+# 1. Build the Docker judge sandbox runner image
+docker build -t judge-runner -f docker/judge-runner.Dockerfile .
+
+# 2. Install dependencies for both server and client
 npm run install:all
 ```
 
@@ -53,6 +56,7 @@ PORT=5000
 MONGO_URL=mongodb://localhost:27017/codeforces_mvp
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 NODE_ENV=development
+JUDGE_IMAGE=judge-runner
 ```
 
 #### 2. Client Configuration (`client/.env`)
@@ -78,7 +82,7 @@ Or run individually inside each directory (`cd server && npm run dev` / `cd clie
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| POST | `/api/auth/register` | Register a new user (`role` is optional: `user`, `moderator`, `admin`) |
+| POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and get JWT token |
 
 #### Register body
@@ -87,8 +91,7 @@ Or run individually inside each directory (`cd server && npm run dev` / `cd clie
 {
   "name": "Jane Doe",
   "email": "jane@example.com",
-  "password": "password123",
-  "role": "admin"
+  "password": "password123"
 }
 ```
 
@@ -98,6 +101,34 @@ Or run individually inside each directory (`cd server && npm run dev` / `cd clie
 {
   "email": "jane@example.com",
   "password": "password123"
+}
+```
+
+### Users
+
+| Method | Endpoint | Access | Description |
+| --- | --- | --- | --- |
+| PATCH | `/api/users/:id/role` | Auth (Admin only) | Update user role (`user`, `moderator`, `admin`) |
+
+#### Update user role body
+
+```json
+{
+  "role": "moderator"
+}
+```
+
+#### Update user role response
+
+```json
+{
+  "message": "User role updated successfully",
+  "user": {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "role": "moderator"
+  }
 }
 ```
 
@@ -168,17 +199,29 @@ Or run individually inside each directory (`cd server && npm run dev` / `cd clie
 
 1. User submits code via `POST /api/submission/submit/:problemId`
 2. Submission is saved with status `pending`
-3. Judge runs asynchronously:
-   - Writes code to a temporary file
-   - Compiles if C/C++
-   - Runs against each test case with a 5-second timeout
-   - Compares actual output with expected output (trimmed, normalized line endings)
-4. Status updates to `correct` or `incorrect`
-5. Results include per-test-case pass/fail, actual output, and execution time
+3. Judge spawns an isolated ephemeral Docker container (`judge-runner`) via `dockerode`:
+   - **Zero Network Access**: `--network none` blocks all incoming/outgoing connections.
+   - **Read-Only Root Filesystem**: `--read-only` prevents modifying container system binaries.
+   - **Non-Root Execution**: Runs under non-privileged `sandboxuser` (UID 1001).
+   - **Resource Sandboxing**: Strict memory limits (256MB RAM with zero swap), 0.5 CPU cap, and 64 PID limit (fork bomb protection).
+   - **Isolated Storage**: Temporary 10MB tmpfs mounted at `/sandbox` for compilation and runtime artifacts.
+   - **Dual-Timeout Watchdog**: Enforces per-problem execution timeouts with a force-kill container fallback.
+   - **Output Limiting**: Captures up to 1MB stdout before aborting with `Output Limit Exceeded`.
+4. Status updates to `correct` or `incorrect` with specific verdicts:
+   - `Accepted (AC)`
+   - `Wrong Answer (WA)`
+   - `Time Limit Exceeded (TLE)`
+   - `Memory Limit Exceeded (MLE)`
+   - `Output Limit Exceeded (OLE)`
+   - `Compilation Error (CE)`
+   - `Runtime Error (RE)`
+   - `Sandbox Error` (isolated infrastructure/daemon errors)
 
 ## File Structure
 
 ```text
+docker/
+└── judge-runner.Dockerfile
 server/
 ├── src/
 │   ├── config/
@@ -211,55 +254,26 @@ server/
 └── .env.example
 ```
 
-## Response Format
+## Security & Operational Guidance
 
-### Success
-
-```json
-{
-  "message": "Operation successful",
-  "data": { ... }
-}
-```
-
-### Error
-
-```json
-{
-  "message": "Error description"
-}
-```
-
-### Validation Error
-
-```json
-{
-  "message": "Validation failed",
-  "errors": {
-    "email": ["Invalid email format"],
-    "password": ["Password must be at least 6 characters"]
-  }
-}
-```
-
-## Security
-
-- JWT tokens expire in 1 hour
-- Passwords hashed with bcrypt (salt rounds: 10)
-- Role-Based Access Control (RBAC) on privileged endpoints
-- Rate limiting on login/register routes (5 req/15min), code submissions (10 req/min), and judge triggers (10 req/min)
-- Helmet security headers
-- CORS enabled
-- Input validation on all endpoints
-- Global error handler hides stack traces in production
+- **Docker Sandbox Hardening**:
+  - The host server running this service should **not** expose the Docker daemon over an unauthenticated TCP socket or run privileged containers.
+  - The `judge-runner` Docker image (`docker/judge-runner.Dockerfile`) should be rebuilt and scanned periodically for base-image security patches and CVEs.
+- **Authentication & RBAC**:
+  - JWT tokens expire in 1 hour.
+  - Passwords hashed with bcrypt (salt rounds: 10).
+  - Role-Based Access Control (RBAC) on problem creation and moderation.
+- **API Defense & Guardrails**:
+  - Rate limiting on auth routes (5 req/15min), submissions (10 req/min per user), and judge triggers (10 req/min per user).
+  - Helmet HTTP security headers and CORS protection.
+  - Zod input validation on all request bodies.
 
 ## Future Improvements
 
-- Replace file-based judging with Docker sandbox
-- Add memory limit enforcement
-- Support more languages (Java, JavaScript, Go)
+- Support more programming languages (Java, JavaScript, Go, Rust)
 - Add leaderboard and contest system
 - Real-time submission updates via WebSocket
 - Admin dashboard for problem moderation
 - Code plagiarism detection
+
 

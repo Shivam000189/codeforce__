@@ -4,30 +4,31 @@ const jwt = require('jsonwebtoken');
 const { requireRole } = require('../src/middlewares/roleMiddleware');
 const { registerSchema } = require('../src/middlewares/validators');
 
-test('registerSchema accepts valid role and rejects invalid role', () => {
-  const validWithRole = registerSchema.safeParse({
-    name: 'Admin User',
-    email: 'admin@example.com',
-    password: 'password123',
-    role: 'admin'
-  });
-  assert.equal(validWithRole.success, true);
-  assert.equal(validWithRole.data.role, 'admin');
-
+test('registerSchema validates required fields and strips extra fields such as role', () => {
   const validWithoutRole = registerSchema.safeParse({
     name: 'Regular User',
     email: 'user@example.com',
     password: 'password123'
   });
   assert.equal(validWithoutRole.success, true);
+  assert.equal(validWithoutRole.data.role, undefined);
 
-  const invalidRole = registerSchema.safeParse({
-    name: 'Invalid User',
-    email: 'user@example.com',
+  // Even if a client sends a role in payload, the Zod schema strips it out
+  const validWithAttemptedRole = registerSchema.safeParse({
+    name: 'Hacker Attempting Admin',
+    email: 'hacker@example.com',
     password: 'password123',
-    role: 'superadmin'
+    role: 'admin'
   });
-  assert.equal(invalidRole.success, false);
+  assert.equal(validWithAttemptedRole.success, true);
+  assert.equal(validWithAttemptedRole.data.role, undefined);
+
+  const invalid = registerSchema.safeParse({
+    name: '',
+    email: 'invalid-email',
+    password: '123'
+  });
+  assert.equal(invalid.success, false);
 });
 
 test('requireRole middleware allows user with matching single role', () => {

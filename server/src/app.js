@@ -4,6 +4,7 @@ const authRoutes = require('./routes/auth.routes');
 const proRoutes = require('./routes/problem.routes');
 const subRoutes = require('./routes/submission.routes');
 const judgeRoute = require('./routes/judge.routes');
+const userRoutes = require('./routes/user.routes');
 
 app.use(express.json());
 
@@ -26,6 +27,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/submission', subRoutes);
 app.use('/api/problem', proRoutes);
 app.use('/api/judge', judgeRoute);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/', (req, res) => {
