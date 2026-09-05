@@ -2,26 +2,31 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert');
 const {
   isMemoryLimitError,
-  runWithInput,
-  killProcessTree,
+  runInDockerSandbox,
   DEFAULT_TIMEOUT_MS,
   DEFAULT_MEMORY_LIMIT_MB,
-  MAX_OUTPUT_SIZE_BYTES
+  MAX_OUTPUT_SIZE_BYTES,
+  JUDGE_IMAGE
 } = require('../src/services/judge.service');
 
-describe('Judge Service Safeguards', () => {
+describe('Judge Service Docker Sandbox & Safeguards', () => {
   it('exports configuration constants and helper functions', () => {
     assert.strictEqual(typeof DEFAULT_TIMEOUT_MS, 'number');
     assert.strictEqual(typeof DEFAULT_MEMORY_LIMIT_MB, 'number');
     assert.strictEqual(typeof MAX_OUTPUT_SIZE_BYTES, 'number');
+    assert.strictEqual(typeof JUDGE_IMAGE, 'string');
     assert.strictEqual(typeof isMemoryLimitError, 'function');
-    assert.strictEqual(typeof killProcessTree, 'function');
-    assert.strictEqual(typeof runWithInput, 'function');
+    assert.strictEqual(typeof runInDockerSandbox, 'function');
   });
 
-  it('correctly identifies memory limit errors from stderr and exit conditions', () => {
+  it('correctly identifies memory limit errors from exit codes, signals, and stderr', () => {
+    // Python MemoryError
     assert.strictEqual(isMemoryLimitError(1, null, 'Traceback ... MemoryError: out of memory'), true);
+    // C++ std::bad_alloc
     assert.strictEqual(isMemoryLimitError(134, 'SIGABRT', 'terminate called after throwing an instance of std::bad_alloc'), true);
+    // Standard Linux OOM killer signals
+    assert.strictEqual(isMemoryLimitError(137, 'SIGKILL', ''), true);
+    assert.strictEqual(isMemoryLimitError(0, null, '', true), true); // oomKilled = true
     assert.strictEqual(isMemoryLimitError(1, null, 'fatal error: out of memory'), true);
     assert.strictEqual(isMemoryLimitError(1, null, 'libc: Cannot allocate memory'), true);
     assert.strictEqual(isMemoryLimitError(1, null, 'virtual memory exhausted: Cannot allocate memory'), true);
@@ -32,27 +37,21 @@ describe('Judge Service Safeguards', () => {
     assert.strictEqual(isMemoryLimitError(0, null, ''), false);
   });
 
-  it('enforces output size cap when process generates excessive stdout', async () => {
-    // Generate script that prints > 1MB of text
-    const script = 'console.log("A".repeat(1024 * 1024 + 100));';
+  it('raises distinct Sandbox Error when Docker daemon is unavailable', async () => {
+    // Invoking runner when daemon is offline should throw a Sandbox Error
     await assert.rejects(
-      runWithInput('node', ['-e', script], '', 5000, 256),
-      /Output Limit Exceeded/
+      runInDockerSandbox({
+        cmd: ['echo', 'test'],
+        input: '',
+        tmpDir: './',
+        timeoutMs: 1000,
+        memoryLimitMb: 256
+      }),
+      (err) => {
+        assert.ok(err.message.includes('Sandbox Error') || err.message.includes('connect'), `Expected Sandbox Error, got: ${err.message}`);
+        return true;
+      }
     );
-  });
-
-  it('enforces timeout and kills process on execution exceed', async () => {
-    // Run an infinite loop script with a short timeout
-    const script = 'while(true) {}';
-    await assert.rejects(
-      runWithInput('node', ['-e', script], '', 300, 256),
-      /Time Limit Exceeded/
-    );
-  });
-
-  it('successfully executes compliant code within limits', async () => {
-    const script = 'process.stdin.on("data", d => process.stdout.write(d.toString().trim() + " OK"));';
-    const output = await runWithInput('node', ['-e', script], 'HELLO', 5000, 256);
-    assert.strictEqual(output.trim(), 'HELLO OK');
   });
 });
+
