@@ -2,6 +2,8 @@
 
 > A full-featured competitive programming online judge and REST API built with Node.js, Express, and MongoDB — featuring secure multi-language code execution (C, C++, Python), time/memory limits, process tree isolation, role-based access control, and real-time verdict evaluation.
 
+## Frontend Is Not Done Yet
+
 ## Tech Stack
 
 - Node.js + Express 5
@@ -275,5 +277,3 @@ server/
 - Real-time submission updates via WebSocket
 - Admin dashboard for problem moderation
 - Code plagiarism detection
-
-
